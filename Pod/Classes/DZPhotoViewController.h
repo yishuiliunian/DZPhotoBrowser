@@ -9,6 +9,8 @@
 
 @class DZPhoto;
 @interface DZPhotoViewController : UIViewController
+@property  (nonatomic, strong, readonly) UIScrollView * scrollView;
+@property  (nonatomic, strong, readonly) UIImageView * imageView;
 @property  (nonatomic, strong, readonly) DZPhoto * photo;
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
 - (instancetype) init NS_UNAVAILABLE;

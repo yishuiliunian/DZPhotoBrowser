@@ -18,4 +18,12 @@
     _url = url;
     return self;
 }
+- (UIImage *)thumb {
+    if (_thumb) {
+        return _thumb;
+    } else if(_sourceImageView) {
+        return _sourceImageView.image;
+    }
+    return nil;
+}
 @end
