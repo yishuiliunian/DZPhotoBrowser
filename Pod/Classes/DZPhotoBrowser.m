@@ -8,7 +8,6 @@
 
 #import "DZPhotoBrowser.h"
 #import "DZPhotoViewController.h"
-#import "UIBarButtonItem+Button.h"
 #import <DZObjectProxy.h>
 @interface DZPhotoBrowser () <UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIScrollViewDelegate, DZPhotoTransitionAnimatorDelegate>
 @property  (nonatomic, strong) UIPageViewController * pageViewController;
@@ -158,10 +157,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    UIBarButtonItem * dismissItem = [UIBarButtonItem barButtonItem:@"关闭" target:self selector:@selector(dismissNavigation)];
-    if (self.navigationController.presentingViewController) {
-        self.navigationItem.rightBarButtonItem = dismissItem;
-    }
     self.navigationController.navigationBarHidden = YES;
 }
 

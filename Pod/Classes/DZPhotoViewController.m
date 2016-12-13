@@ -190,6 +190,9 @@
     SDWebImageManager * manager = [SDWebImageManager sharedManager];
     NSString * key = [manager cacheKeyForURL:_photo.url];
     UIImage * image = [[[SDWebImageManager sharedManager] imageCache] imageFromCacheForKey:key];
+    if (!image) {
+        image = self.photo.image;
+    }
     if (image) {
         self.imageView.image = image;
         self.progressView.hidden = YES;
