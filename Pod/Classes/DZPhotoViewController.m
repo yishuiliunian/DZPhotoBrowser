@@ -45,7 +45,7 @@
 
 - (UIScrollView *)scrollView {
     if (!_scrollView) {
-        _scrollView = [[UIScrollView alloc] initWithFrame:CGRectLoadViewFrame];
+        _scrollView = [[UIScrollView alloc] initWithFrame:[UIScreen mainScreen].bounds];
         _scrollView.delegate = self;
         _scrollView.minimumZoomScale = 1.0f;
         _scrollView.maximumZoomScale = 3.0f;
@@ -119,7 +119,7 @@
     [alert addAction:share];
 
 
-    [self presentViewController:alert animated:YES completion:^{
+    [self.navigationController  presentViewController:alert animated:YES completion:^{
 
     }];
 }
@@ -173,6 +173,9 @@
     }
     _scrollView.contentSize = aimSize;
     _imageView.frame = CGRectCenter(contentRect, aimSize);
+#ifdef DEBUG
+    CGPrintKeyRect(@"Destani Rect", self.imageView.frame);
+#endif
 }
 - (void) handleDoubleTapGesture:(UIGestureRecognizer *)gestrue
 {
@@ -202,7 +205,6 @@
                     weakSelf.progressView.progress = receivedSize / (float)expectedSize;
                 }
             });
-
         } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
             weakSelf.progressView.hidden = YES;
             weakSelf.loading = NO;
@@ -243,7 +245,9 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-
+#ifdef DEBUG
+    CGPrintKeyRect(@"Destani Rect", self.imageView.frame);
+#endif
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
