@@ -74,8 +74,8 @@
 #ifdef DEBUG
             CGPrintKeyRect(@"Image Aim Rect", aimRect);
 #endif
-            transitionImageView.contentMode = photoView.contentMode;
-            transitionImageView.layer.masksToBounds = photoView.layer.masksToBounds;
+            transitionImageView.contentMode = photoView.contentMode = sourceImageView.contentMode;
+            transitionImageView.layer.masksToBounds = photoView.layer.masksToBounds = sourceImageView.layer.masksToBounds;
         }
         backgroundView.alpha = 0.0;
         toView.alpha = 0.0;

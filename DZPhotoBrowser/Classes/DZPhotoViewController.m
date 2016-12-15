@@ -30,7 +30,6 @@
 
 - (void) dealloc
 {
-    [_imageView removeObserver:self forKeyPath:@"image"];
 }
 - (instancetype)initWithPhoto:(DZPhoto *)photo {
     self = [super init];
@@ -61,7 +60,6 @@
     //
     _imageView.userInteractionEnabled = YES;
     _imageView.contentMode = UIViewContentModeScaleAspectFit;
-    [_imageView addObserver:self forKeyPath:@"image" options:NSKeyValueObservingOptionNew context:nil];
     //
     _doubleTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTapGesture:)];
     _doubleTapGesture.numberOfTapsRequired = 2;
@@ -132,20 +130,27 @@
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary*)change context:(void *)context {
-    if ([keyPath isEqualToString:@"image"] && object == _imageView) {
-        UIImage * image = [change valueForKey:NSKeyValueChangeNewKey];
-        [self layoutWithImage:image];
-    }
-}
 
-- (void) layoutWithImage:(UIImage *)image
+- (void) layoutWithImage:(UIImage *)image animated:(BOOL)animated
 {
     CGSize size = {40,40};
     if (image && ![image isKindOfClass:[NSNull class]]) {
-        [self layoutWithImageSize:image.size];
+        [self layoutWithImageSize:image.size animated:animated];
     } else {
+        [self layoutWithImageSize:size animated:animated];
+    }
+}
+- (void) layoutWithImageSize:(CGSize) size animated:(BOOL)animated
+{
+    void (^Animator)() = ^{
         [self layoutWithImageSize:size];
+    };
+    if (animated) {
+        [UIView animateWithDuration:0.25 animations:Animator completion:^(BOOL finished) {
+
+        }];
+    } else {
+        Animator();
     }
 }
 - (void) layoutWithImageSize:(CGSize) size
@@ -197,11 +202,23 @@
         self.imageView.image = image;
         self.progressView.hidden = YES;
         self.loading = NO;
+        [self layoutWithImage:image animated:NO];
     } else {
         self.progressView.hidden = NO;
         self.progressView.progress = 0.0;
         __weak  typeof(self) weakSelf = self;
         self.loading = YES;
+        UIImage * thumbnail = _photo.thumb;
+        if (thumbnail) {
+            self.imageView.image = thumbnail;
+            if (_photo.sourceImageView && !CGRectIsEmpty(_photo.sourceImageView.frame)) {
+                [self layoutWithImageSize:_photo.sourceImageView.frame.size animated:NO];
+            } else {
+                [self layoutWithImage:thumbnail animated:NO];
+            }
+        } else {
+            [self layoutWithImageSize:CGSizeMake(40, 40) animated:NO];
+        }
         [self.imageView sd_setImageWithURL:self.photo.url placeholderImage:_photo.thumb options:0 progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *targetURL) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (expectedSize != 0) {
@@ -211,6 +228,14 @@
         } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
             weakSelf.progressView.hidden = YES;
             weakSelf.loading = NO;
+            if (image) {
+                [weakSelf layoutWithImage:image animated:YES];
+            } else {
+               NSBundle * bundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"DZPhotoBrowser" ofType:@"bundle"]];
+                UIImage * image = [UIImage imageNamed:@"ImageError" inBundle:bundle compatibleWithTraitCollection:nil];
+                weakSelf.imageView.image = image;
+                [weakSelf layoutWithImage:image animated:YES];
+            }
         }];
     }
     // Do any additional setup after loading the view.
@@ -235,7 +260,6 @@
     [super viewWillLayoutSubviews];
     _progressView.frame = CGRectCenter(self.view.bounds, (CGSize){55,55});
     if (_willLayout) {
-        [self layoutWithImage:self.imageView.image];
         _willLayout = NO;
     }
 }
