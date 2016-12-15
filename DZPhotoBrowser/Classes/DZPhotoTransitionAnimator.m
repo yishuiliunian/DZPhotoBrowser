@@ -122,10 +122,10 @@
             backgroundView.alpha = 0.0;
         } completion:^(BOOL finished) {
             BOOL isCancelled = [transitionContext transitionWasCancelled];
-            [transitionContext completeTransition:!isCancelled];
             [transitionImageView removeFromSuperview];
             [fromVC endAppearanceTransition];
             [toVC endAppearanceTransition];
+            [transitionContext completeTransition:!isCancelled];
         }];
     }
 

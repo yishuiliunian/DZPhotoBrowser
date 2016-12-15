@@ -14,6 +14,9 @@
 #import <DACircularProgressView.h>
 #import <DZAlertPool.h>
 #import <AssetsLibrary/AssetsLibrary.h>
+#import "LBXScanWrapper.h"
+#import "DZURLRoute.h"
+
 @interface DZPhotoViewController () <UIScrollViewDelegate>
 {
     BOOL  _willLayout;
@@ -90,6 +93,24 @@
     DZAlertShowSuccess(@"保存成功");
 }
 
+- (void) scanThisPic
+{
+    [LBXScanWrapper recognizeImage:self.imageView.image success:^(NSArray<LBXScanResult *> *array) {
+        if (array.count) {
+            LBXScanResult * result = array.firstObject;
+            if (!result.strScanned) {
+                DZAlertShowError(@"没有识别到任何二维码信息");
+            } else {
+                [self dismissViewControllerAnimated:YES completion:^{
+                    NSString * url = result.strScanned?:@"";
+                    [[DZURLRoute defaultRoute] routeURL:DZURLRouteQueryLink(url, @{})];
+                }];
+            }
+        } else {
+            DZAlertShowError(@"没有识别到任何二维码信息");
+        }
+    }];
+}
 - (void) showActions {
     if (self.loading) {
         return;
@@ -101,6 +122,11 @@
     }];
     UIAlertAction * save = [UIAlertAction actionWithTitle:@"保存图片" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         UIImageWriteToSavedPhotosAlbum(_imageView.image, weakSelf, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    }];
+
+
+    UIAlertAction * scan  = [UIAlertAction actionWithTitle:@"扫描图片中的二维码" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [weakSelf scanThisPic];
     }];
     UIAlertAction * share = [UIAlertAction actionWithTitle:@"分享图片" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 
@@ -115,6 +141,7 @@
     [alert addAction:cancel];
     [alert addAction:save];
     [alert addAction:share];
+    [alert addAction:scan];
 
 
     [self.navigationController  presentViewController:alert animated:YES completion:^{
