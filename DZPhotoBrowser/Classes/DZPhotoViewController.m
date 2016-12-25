@@ -190,10 +190,15 @@
     if (size.width < size.height) {
        if (size.height <= CGRectGetHeight(contentRect)) {
            aimSize = size;
+           if (aimSize.width > CGRectGetWidth(contentRect)){
+               aimSize = CGSizeScale(aimSize, CGRectGetWidth(contentRect)/aimSize.width);
+           }
        } else {
            aimSize = CGSizeScale(size, CGRectGetHeight(contentRect)/size.height);
            if (aimSize.width > CGRectGetWidth(contentRect)){
               aimSize = CGSizeScale(aimSize, CGRectGetWidth(contentRect)/aimSize.width);
+           } else if (aimSize.width != 0 && aimSize.height / aimSize.width > 3) {
+               aimSize = CGSizeScale(aimSize, CGRectGetWidth(contentRect)/aimSize.width);
            }
        }
     } else {
@@ -204,7 +209,12 @@
         }
     }
     _scrollView.contentSize = aimSize;
-    _imageView.frame = CGRectCenter(contentRect, aimSize);
+    CGRect rect = CGRectCenter(contentRect, aimSize);
+    if (rect.origin.y < 0) {
+        rect.origin.y = 0;
+    }
+    _imageView.frame =  rect;
+
 #ifdef DEBUG
     CGPrintKeyRect(@"Destani Rect", self.imageView.frame);
 #endif
